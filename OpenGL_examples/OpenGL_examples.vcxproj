@@ -147,6 +147,7 @@
   <ItemGroup>
     <ClCompile Include="ex1.cpp" />
     <ClCompile Include="glad.cpp" />
+    <ClCompile Include="triangle.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
