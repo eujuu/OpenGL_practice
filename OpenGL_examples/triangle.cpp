@@ -1,7 +1,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
-using namespace std;
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 void init_glfw();
@@ -26,6 +25,7 @@ int main() {
 	unsigned int vertexShader;
 	unsigned int fragmentShader;
 	unsigned int shaderProgram;
+	
 	int success;
 	char infoLog[512];
 	
@@ -34,7 +34,7 @@ int main() {
 	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
 	if (window == NULL)
 	{
-		cout << "Failed to create GLFW window" << endl;
+		std::cout << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
 		return -1;
 	}
@@ -45,14 +45,26 @@ int main() {
 		std::cout << "Failed to initialize GLAD" << std::endl;
 		return -1;
 	}
-
+	/*
 	float vertices[] = {
 		-0.5f, -0.5f, 0.0f,
 		0.5f, -0.5f, 0.0f,
 		 0.0f,  0.5f, 0.0f
 	}; //depth 를 0으로 주어 2d삼각형을 그린다.
+	*/
+	float vertices[] = {
+	 0.5f,  0.5f, 0.0f,  // 우측 상단
+	 0.5f, -0.5f, 0.0f,  // 우측 하단
+	-0.5f, -0.5f, 0.0f,  // 좌측 하단
+	-0.5f,  0.5f, 0.0f   // 좌측 상단
+	};
+	unsigned int indices[] = {  // 0부터 시작한다는 것을 명심하세요!
+		0, 1, 3,   // 첫 번째 삼각형
+		1, 2, 3    // 두 번째 삼각형
+	};
 
 	
+
 	//Vertex Shader
 	vertexShader = glCreateShader(GL_VERTEX_SHADER); //생성할 shader 유형 입력
 	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL); // 
@@ -94,13 +106,19 @@ int main() {
 	//vertex shader에게 전달 -> gpu에 정점 데이터를 저장할 고간의 메모리 할당, 어떻게 메모리를 해석할 것인지 구성, 어떻게 전달할 것인지 명시
 	//vertex buffer object(VBO)를 통해 메모리 관리
 	unsigned int VBO, VAO;
+	unsigned int EBO;
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
 
 	glBindVertexArray(VAO);
 	// 정점 배열을 OpenGL에서 사용하기 위해 버퍼에 복사
 	glBindBuffer(GL_ARRAY_BUFFER, VBO); // 버퍼 바인딩
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // 사용자가 정의한 데이터를 바인딩 된 버퍼에 복사하는 기능 수행
+	
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
 	// vertex 속성 포인터를 설정
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
@@ -120,7 +138,10 @@ int main() {
 		//object를 그리고 싶을 때 생성한  shader Program 사용
 		glUseProgram(shaderProgram);
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		//glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+		
 		// 이벤트 확인하고 버퍼 교체
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -129,7 +150,7 @@ int main() {
 	
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
-
+	glDeleteBuffers(1, &EBO);
 	glfwTerminate();
 	return 0;
 }
